@@ -69,19 +69,9 @@ For a performance-optimized release build:
 ```bash
 flutter build apk --release
 ```
-
----
-
-## 📱 Screenshots & UI
-
-| Gallery (Masonry) | Navigation | Custom Themes |
-| :--- | :--- | :--- |
-| ![Gallery View](https://via.placeholder.com/200x400) | ![Nav Bar](https://via.placeholder.com/200x400) | ![Theme Picker](https://via.placeholder.com/200x400) |
-
 ---
 
 ## 📄 License
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
-*Built with ❤️ by Antigravity AI*
