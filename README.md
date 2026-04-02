@@ -1,77 +1,88 @@
-# 🖼️ Curator — The Art of Digital Memories
+# Curator Gallery
 
-![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white) 
-![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
-![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white)
+Professional photo management and curation application built with Flutter, focusing on modern aesthetics, user-centric navigation, and persistent customization.
 
-**Curator** is a state-of-the-art Flutter gallery application designed with a focus on high-end aesthetics, liquid-smooth animations, and robust functionality. It blends the nostalgia of Polaroid-style cards with a modern, glossy 2024 "Glassmorphism" design system.
+## Overview
 
----
+Curator is a high-fidelity gallery application that bridges the gap between classic artistry and modern mobile design. Utilizing a sophisticated "frosted glass" (Glassmorphism) design language and Material 3 principles, the application provides a premium environment for organizing and viewing digital media.
 
-## ✨ Key Features
+## Visual Interface
 
-- **💎 Premium Glossy UI**: Experience a "frosted glass" interface with intense blurs, inner shadows, and high-gloss navigation bars.
-- **📸 Polaroid Masonry Gallery**: A beautifully staggered grid layout that emphasizes visual hierarchy and artistic display.
-- **🎨 Dynamic Design System**: Customize your experience with multiple accent colors (Steel Blue, Amber, Emerald, Rose, Lavender) and premium typography (Inter, Roboto, Outfit).
-- **🧠 Intelligent Persistence**: Theme settings, font choices, and curated collections are saved locally and persist automatically across app sessions.
-- **❤️ Interactive Micro-animations**:
-  - Double-tap to like with heart pop animations.
-  - Smooth card-slide effects in the bottom navigation.
-  - Native gesture-based navigation (swipe between Gallery, Favorites, and Albums).
-- **📁 Real-World Curation**: Select actual images from your device's camera roll to build and organize custom digital albums.
+The application features a minimalist layout designed to keep the focus on the content. Below are the key screen representations:
 
----
+### Screen Layouts
 
-## 🛠️ Tech Stack
+| Gallery View | Favorites | Albums |
+| :---: | :---: | :---: |
+| ![Gallery Screen](android/assets/screenshots/GalleryView.jpg) | ![Favorites Screen](android/assets/screenshots/FavoritesView.jpg) | ![Albums Screen](android/assets/screenshots/AlbumsView.jpg) |
 
-- **Core**: [Flutter](https://flutter.dev) & [Dart](https://dart.dev)
-- **State Management**: [Provider](https://pub.dev/packages/provider)
-- **Data Persistence**: [Shared Preferences](https://pub.dev/packages/shared_preferences)
-- **Backend**: [Firebase Core](https://pub.dev/packages/firebase_core) (AOT-Ready)
-- **Styling**: [Google Fonts](https://pub.dev/packages/google_fonts), Custom Material 3 Design System
-- **Layout**: [Staggered Grid View](https://pub.dev/packages/flutter_staggered_grid_view)
-- **Native Bridges**: Image Picker, Permission Handler
+### Interactive Elements
+
+| Detailed View |
+| :---: |
+| ![Detailed View](android/assets/screenshots/DetailedView.jpg) |
+
 
 ---
 
-## 🚀 Getting Started
+## Core Features
+
+- **Advanced UI Architecture**: Implements a deep Glassmorphism layer with high-sigma blurring, inner-glow shadows, and responsive layouts.
+- **Masonry Grid System**: Staggered grid rendering for dynamic photo presentation and optimal space utilization.
+- **Persistent Personalization**: Integrated theme engine using local storage to maintain user preferences across device sessions (Accent colors, Light/Dark modes, Typography).
+- **Haptic & Visual Feedback**: Integrated micro-animations including heart-pop interactions on double-tap and smooth card-slide transitions.
+- **Native Media Integration**: Direct connection to device storage for authentic image curation and album management.
+
+## Technical Specifications
+
+### Framework & Language
+- **Flutter SDK**: 3.x+
+- **Dart Language**: Modern null-safe syntax
+
+### Key Libraries
+- **State Management**: Provider
+- **Local Persistence**: Shared Preferences
+- **Backend Architecture**: Firebase Core
+- **Typography**: Google Fonts (Inter, Roboto, Outfit)
+- **UI Components**: Staggered Grid, Cached Network Image, Floating Action Buttons
+
+---
+
+## Installation and Setup
 
 ### Prerequisites
+- Flutter SDK (Stable)
+- Android SDK / iOS Development Environment
+- Hardware device or Emulator
 
-- Flutter SDK (Channel Stable)
-- Android Studio / VS Code with Flutter Extension
-- A valid Firebase project
+### Setup Instructions
 
-### Installation & Setup
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/your-username/polaroid_gallery_app.git
+   ```
 
-1.  **Clone the project:**
-    ```bash
-    git clone https://github.com/your-username/polaroid_gallery_app.git
-    cd polaroid_gallery_app
-    ```
+2. **Install Dependencies**
+   ```bash
+   flutter pub get
+   ```
 
-2.  **Install dependencies:**
-    ```bash
-    flutter pub get
-    ```
+3. **Firebase Configuration**
+   Ensure `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) are placed in their respective platform directories.
 
-3.  **Firebase Configuration**:
-    - Download your `google-services.json` from the Firebase Console and place it in `android/app/`.
-    - Download your `GoogleService-Info.plist` and place it in `ios/Runner/`.
+4. **Build and Run**
+   ```bash
+   flutter run
+   ```
 
-4.  **Run the app:**
-    ```bash
-    flutter run
-    ```
-
-### Android APK Build
-For a performance-optimized release build:
+## Build for Release
+To generate a production-ready APK for Android:
 ```bash
 flutter build apk --release
 ```
----
 
-## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
+## License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for the full text.
 
 ---
+Developed by Ayush Rajput
