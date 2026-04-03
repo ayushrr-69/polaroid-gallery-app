@@ -55,3 +55,6 @@ firestore.rules
 functions/node_modules/
 storage.rules
 
+
+.agents/
+.vscode/
