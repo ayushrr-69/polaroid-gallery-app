@@ -58,3 +58,4 @@ storage.rules
 
 .agents/
 .vscode/
+**/google-services.json

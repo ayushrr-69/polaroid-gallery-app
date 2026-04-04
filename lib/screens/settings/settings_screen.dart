@@ -1,15 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import '../../app.dart';
 import '../../theme/theme_provider.dart';
+import '../../services/auth_service.dart';
+import '../../state/gallery_provider.dart';
 
-/// Settings screen with functional theme controls.
-///
-/// All changes are applied in real-time via [ThemeProvider]:
-/// - Dark / Light mode toggle
-/// - Accent color picker (5 palettes)
-/// - Typography selector (Inter, Roboto, Outfit)
-class SettingsScreen extends StatelessWidget {
+/// Settings screen with functional theme controls and Google Sign-In.
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _isSigningIn = false;
+
+  Future<void> _handleSignIn() async {
+    setState(() => _isSigningIn = true);
+    final user = await AuthService.signInWithGoogle();
+    if (mounted) {
+      setState(() => _isSigningIn = false);
+      if (user != null) {
+        // Sync existing local favorites to cloud
+        context.read<GalleryProvider>().syncLocalFavoritesToCloud();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Welcome, ${user.displayName}!'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleSignOut() async {
+    await AuthService.signOut();
+    if (mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Signed out'),
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +77,15 @@ class SettingsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
+
+                // ══════════════════════════════════════════════
+                // ACCOUNT
+                // ══════════════════════════════════════════════
+                _sectionLabel(context, 'ACCOUNT'),
+                const SizedBox(height: 12),
+                _buildAccountSection(context, cs, tt),
+
+                const SizedBox(height: 28),
 
                 // ══════════════════════════════════════════════
                 // APPEARANCE
@@ -219,6 +265,195 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  // ── Account Section ─────────────────────────────────────────
+  Widget _buildAccountSection(BuildContext context, ColorScheme cs, TextTheme tt) {
+    return StreamBuilder<User?>(
+      stream: AuthService.authStateChanges,
+      builder: (context, snapshot) {
+        final user = snapshot.data;
+
+        return _group(
+          context,
+          children: [
+            if (user != null) ...[
+              // ── Signed In State ─────────────────────────
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    // Avatar
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: cs.primaryContainer,
+                      backgroundImage: user.photoURL != null
+                          ? NetworkImage(user.photoURL!)
+                          : null,
+                      child: user.photoURL == null
+                          ? Icon(Icons.person, color: cs.onPrimaryContainer)
+                          : null,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.displayName ?? 'User',
+                            style: tt.titleSmall?.copyWith(
+                              color: cs.onSurface,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            user.email ?? '',
+                            style: tt.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: cs.primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.cloud_done_rounded, size: 14, color: cs.primary),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Synced',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: cs.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Sign out button
+              GestureDetector(
+                onTap: _handleSignOut,
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.logout_rounded, size: 18, color: cs.onSurfaceVariant),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Sign Out',
+                          style: tt.labelLarge?.copyWith(
+                            color: cs.onSurfaceVariant,
+                            letterSpacing: 0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ] else ...[
+              // ── Signed Out State ────────────────────────
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.account_circle_outlined,
+                      size: 48,
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Sign in to sync favorites',
+                      style: tt.titleSmall?.copyWith(color: cs.onSurface),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Your likes will persist across devices',
+                      style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: _isSigningIn ? null : _handleSignIn,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [cs.primary, cs.primaryContainer],
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: cs.primary.withValues(alpha: 0.3),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: _isSigningIn
+                            ? Center(
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation(cs.onPrimary),
+                                  ),
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.login_rounded,
+                                    size: 20,
+                                    color: cs.onPrimary,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Sign in with Google',
+                                    style: tt.labelLarge?.copyWith(
+                                      color: cs.onPrimary,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
         );
       },
     );

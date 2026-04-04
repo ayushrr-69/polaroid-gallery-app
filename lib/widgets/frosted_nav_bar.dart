@@ -138,36 +138,39 @@ class _NavItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: Icon(
-              isSelected ? activeIcon : icon,
-              key: ValueKey(isSelected),
-              color: isSelected
-                  ? cs.primary
-                  : cs.onSurfaceVariant.withValues(alpha: 0.7),
-              size: 20,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                isSelected ? activeIcon : icon,
+                key: ValueKey(isSelected),
+                color: isSelected
+                    ? cs.primary
+                    : cs.onSurfaceVariant.withValues(alpha: 0.7),
+                size: 20,
+              ),
             ),
-          ),
-          const SizedBox(height: 3),
-          AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
-            style: TextStyle(
-              fontFamily: Theme.of(context).textTheme.labelSmall?.fontFamily,
-              fontSize: isSelected ? 9.5 : 9.0,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected
-                  ? cs.primary
-                  : cs.onSurfaceVariant.withValues(alpha: 0.6),
-              letterSpacing: isSelected ? 0.8 : 0.5,
+            const SizedBox(height: 3),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: TextStyle(
+                fontFamily: Theme.of(context).textTheme.labelSmall?.fontFamily,
+                fontSize: isSelected ? 9.5 : 9.0,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected
+                    ? cs.primary
+                    : cs.onSurfaceVariant.withValues(alpha: 0.6),
+                letterSpacing: isSelected ? 0.8 : 0.5,
+              ),
+              child: Text(label),
             ),
-            child: Text(label),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

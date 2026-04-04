@@ -164,14 +164,23 @@ class _PolaroidCardState extends State<PolaroidCard>
                                   color: Colors.grey[600],
                                 ),
                               )
-                            : Image.file(
-                                File(widget.photo.imageUrl),
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => Icon(
-                                  Icons.broken_image_rounded,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
+                            : widget.photo.imageUrl.startsWith('assets/')
+                                ? Image.asset(
+                                    widget.photo.imageUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, _, _) => Icon(
+                                      Icons.broken_image_rounded,
+                                      color: Colors.grey[600],
+                                    ),
+                                  )
+                                : Image.file(
+                                    File(widget.photo.imageUrl),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, _, _) => Icon(
+                                      Icons.broken_image_rounded,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
                       ),
                     ),
                   ),

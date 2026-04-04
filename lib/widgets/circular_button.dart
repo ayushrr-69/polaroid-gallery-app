@@ -11,6 +11,7 @@ class CircularButton extends StatelessWidget {
     this.size = CircularButtonSize.large,
     this.glow = false,
     this.iconColor,
+    this.isLoading = false,
   });
 
   final IconData icon;
@@ -18,6 +19,7 @@ class CircularButton extends StatelessWidget {
   final CircularButtonSize size;
   final bool glow;
   final Color? iconColor;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class CircularButton extends StatelessWidget {
     final resolvedIconColor = iconColor ?? cs.onSurface;
 
     return GestureDetector(
-      onTap: onPressed,
+      onTap: isLoading ? null : onPressed,
       child: Container(
         width: dim,
         height: dim,
@@ -47,7 +49,18 @@ class CircularButton extends StatelessWidget {
               ),
           ],
         ),
-        child: Icon(icon, color: resolvedIconColor, size: iconSize),
+        child: Center(
+          child: isLoading 
+              ? SizedBox(
+                  width: iconSize,
+                  height: iconSize,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: resolvedIconColor,
+                  ),
+                )
+              : Icon(icon, color: resolvedIconColor, size: iconSize),
+        ),
       ),
     );
   }

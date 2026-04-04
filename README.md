@@ -1,88 +1,81 @@
 # Curator Gallery
 
-Professional photo management and curation application built with Flutter, focusing on modern aesthetics, user-centric navigation, and persistent customization.
+A premium, high-fidelity photo curation and management experience for mobile, featuring a bespoke "Curated." sharing engine and an advanced Glassmorphic design system.
 
-## Overview
+---
 
-Curator is a high-fidelity gallery application that bridges the gap between classic artistry and modern mobile design. Utilizing a sophisticated "frosted glass" (Glassmorphism) design language and Material 3 principles, the application provides a premium environment for organizing and viewing digital media.
+## 📸 Overview
 
-## Visual Interface
+Curator is more than just a gallery—it’s an editorial platform for your memories. It follows a strict minimalist aesthetic, utilizing Material 3 principles and deep Glassmorphic layers to create a professional-grade viewing environment.
 
-The application features a minimalist layout designed to keep the focus on the content. Below are the key screen representations:
+### Key Visuals
+*(Add your high-resolution screenshots in the `metadata/screenshots/` folder and link them below)*
 
-### Screen Layouts
-
-| Gallery View | Favorites | Albums |
+| **Main Gallery** | **Editorial View** | **Custom Share** |
 | :---: | :---: | :---: |
-| ![Gallery Screen](android/assets/screenshots/GalleryView.jpg) | ![Favorites Screen](android/assets/screenshots/FavoritesView.jpg) | ![Albums Screen](android/assets/screenshots/AlbumsView.jpg) |
-
-### Interactive Elements
-
-| Detailed View |
-| :---: |
-| ![Detailed View](android/assets/screenshots/DetailedView.jpg) |
-
+| ![Gallery](metadata/screenshots/gallery.png) | ![Preview](metadata/screenshots/preview.png) | ![Share](metadata/screenshots/share.png) |
 
 ---
 
-## Core Features
+## ✨ Core Features
 
-- **Advanced UI Architecture**: Implements a deep Glassmorphism layer with high-sigma blurring, inner-glow shadows, and responsive layouts.
-- **Masonry Grid System**: Staggered grid rendering for dynamic photo presentation and optimal space utilization.
-- **Persistent Personalization**: Integrated theme engine using local storage to maintain user preferences across device sessions (Accent colors, Light/Dark modes, Typography).
-- **Haptic & Visual Feedback**: Integrated micro-animations including heart-pop interactions on double-tap and smooth card-slide transitions.
-- **Native Media Integration**: Direct connection to device storage for authentic image curation and album management.
+### 1. "Curated." Sharing Engine (V4.4)
+Transform any photo into a professional social media asset.
+- **Ultra-HD Rendering**: Generates story-ready assets (1080x1920) with high-fidelity detail.
+- **Watermark Branding**: Distinct "Curated." watermark positioned for maximum aesthetic impact.
+- **The "Thin Chin" Polaroid**: A modern take on the classic Polaroid layout with sharp edges and a minimalist white border.
+- **Dynamic Centering**: Intelligently positions your memories just above the frame's center for optimal viewing on mobile devices.
 
-## Technical Specifications
+### 2. RGB Photo-Match Technology
+Perfectly coordinate your sharing backgrounds.
+- **Palette Extraction**: Automatically identifies the top 3 dominant colors from your photo.
+- **Custom RGB Wheel**: Granular control via a precise color wheel, allowing for any custom background hue.
+- **Multi-Style Support**: Choose between immersive Blurs, clean Gradients, or Solid color backgrounds.
 
-### Framework & Language
-- **Flutter SDK**: 3.x+
-- **Dart Language**: Modern null-safe syntax
-
-### Key Libraries
-- **State Management**: Provider
-- **Local Persistence**: Shared Preferences
-- **Backend Architecture**: Firebase Core
-- **Typography**: Google Fonts (Inter, Roboto, Outfit)
-- **UI Components**: Staggered Grid, Cached Network Image, Floating Action Buttons
+### 3. Professional UI Architecture
+- **Glassmorphism**: High-sigma blurring and inner-glow shadow layers for a truly premium feel.
+- **Masonry Layout**: Staggered grid rendering for a dynamic, non-repetitive gallery flow.
+- **Persistence**: Your preferences for accent colors and theme modes are saved locally.
 
 ---
 
-## Installation and Setup
+## 🛠️ Technical Implementation
 
-### Prerequisites
-- Flutter SDK (Stable)
-- Android SDK / iOS Development Environment
-- Hardware device or Emulator
+### Architecture
+Ordered for clarity and scale:
+- `lib/models/`: Robust data structures.
+- `lib/screens/`: Feature-rich, modular view layers.
+- `lib/services/`: Core logic for Firebase, image processing, and generation.
+- `lib/widgets/`: Reusable, atomic UI components.
 
-### Setup Instructions
+### Tech Stack
+- **Framework**: Flutter (Mobile-Focused)
+- **Backend**: Firebase (Core, Auth, Firestore)
+- **Styling**: Google Fonts (Playfair Display, Inter, Outfit)
+- **Plugins**: Staggered Grid, Palette Generator, Color Picker, Screenshot.
 
-1. **Clone the Repository**
+---
+
+## 🚀 Getting Started
+
+### Installation
+1. **Clone & Install**:
    ```bash
-   git clone https://github.com/your-username/polaroid_gallery_app.git
-   ```
-
-2. **Install Dependencies**
-   ```bash
+   git clone https://github.com/your-username/curator_gallery.git
+   cd curator_gallery
    flutter pub get
    ```
+2. **Firebase Setup**:
+   Place your `google-services.json` in `android/app/` and `GoogleService-Info.plist` in `ios/Runner/`.
 
-3. **Firebase Configuration**
-   Ensure `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) are placed in their respective platform directories.
-
-4. **Build and Run**
+3. **Build APK**:
    ```bash
-   flutter run
+   flutter build apk --release
    ```
 
-## Build for Release
-To generate a production-ready APK for Android:
-```bash
-flutter build apk --release
-```
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for the full text.
-
 ---
-Developed by Ayush Rajput
+
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+Developed with ❤️ by **Ayush Rajput**
