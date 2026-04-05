@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../models/photo.dart';
 import '../../state/gallery_provider.dart';
 import '../../widgets/polaroid_card.dart';
+import '../../widgets/polaroid_skeleton.dart';
 import '../photo_preview/photo_preview_screen.dart';
 import '../edit_metadata/edit_metadata_screen.dart';
 
@@ -135,7 +137,9 @@ class _GalleryScreenState extends State<GalleryScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final cs = Theme.of(context).colorScheme;
-    final photos = context.watch<GalleryProvider>().photos;
+    final provider = context.watch<GalleryProvider>();
+    final photos = provider.photos;
+    final isLoading = provider.isLoading;
 
     return CustomScrollView(
       slivers: [
@@ -165,33 +169,61 @@ class _GalleryScreenState extends State<GalleryScreen>
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
-        if (photos.isEmpty)
+        if (isLoading)
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            sliver: SliverList.separated(
+              itemCount: 3, // show a few skeletons
+              separatorBuilder: (context, _) => const SizedBox(height: 48),
+              itemBuilder: (context, index) => const PolaroidSkeleton(),
+            ),
+          )
+        else if (photos.isEmpty)
           SliverFillRemaining(
             hasScrollBody: false,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.grid_view_rounded,
-                    size: 64,
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.2),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No photos yet',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: cs.onSurfaceVariant,
+            child: Padding(
+              padding: const EdgeInsets.all(40),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // A more stylized empty state icon
+                    Container(
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerHigh.withValues(alpha: 0.5),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: cs.outlineVariant.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.collections_outlined,
+                        size: 64,
+                        color: cs.primary.withValues(alpha: 0.4),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Tap "Curate" to upload your first photo',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                    const SizedBox(height: 32),
+                    Text(
+                      'Your archive is empty.',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.5,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    Text(
+                      'The "Digital Archive" preserves your professional moments. Tap Curator to start your collection.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           )

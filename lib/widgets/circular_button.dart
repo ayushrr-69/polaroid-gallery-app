@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum CircularButtonSize { small, large }
 
@@ -29,7 +30,12 @@ class CircularButton extends StatelessWidget {
     final resolvedIconColor = iconColor ?? cs.onSurface;
 
     return GestureDetector(
-      onTap: isLoading ? null : onPressed,
+      onTap: isLoading
+          ? null
+          : () {
+              HapticFeedback.lightImpact(); // Added haptics
+              onPressed?.call();
+            },
       child: Container(
         width: dim,
         height: dim,

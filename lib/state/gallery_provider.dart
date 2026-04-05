@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,9 +18,11 @@ class GalleryProvider extends ChangeNotifier {
   Set<String> _cloudFavoriteIds = {};
   StreamSubscription? _favoritesSubscription;
   StreamSubscription? _photosSubscription;
+  bool _isLoading = true;
 
   List<Photo> get photos => List.unmodifiable(_photos);
   List<Album> get albums => List.unmodifiable(_albums);
+  bool get isLoading => _isLoading;
 
   GalleryProvider() {
     _loadData();
@@ -35,14 +36,17 @@ class GalleryProvider extends ChangeNotifier {
         _startFavoritesSync();
         _startPhotosSync();
       } else {
-        _stopFavoritesSync();
-        _stopPhotosSync();
+        // Clear all session-specific data immediately
+        clearDataForLogout();
       }
     });
   }
 
   /// Start listening to Firestore photos stream
   void _startPhotosSync() {
+    _isLoading = true;
+    notifyListeners();
+    
     _photosSubscription?.cancel();
     _photosSubscription = PhotoService.streamPhotos().listen((cloudPhotos) {
       // If we have cloud photos, they define the gallery.
@@ -55,6 +59,7 @@ class GalleryProvider extends ChangeNotifier {
           isFavorite: _cloudFavoriteIds.contains(_photos[i].id),
         );
       }
+      _isLoading = false;
       notifyListeners();
     });
   }
@@ -64,8 +69,25 @@ class GalleryProvider extends ChangeNotifier {
     _photosSubscription?.cancel();
     _photosSubscription = null;
     _photos = [];
+    notifyListeners(); // Ensure UI reflects empty state instantly
     _clearLocalData(); // Clean up on logout
     _seedWelcomePhoto(); // Revert to only default image
+  }
+
+  /// Synchronously clear all personal data to update UI instantly on logout
+  void clearDataForLogout() {
+    _photosSubscription?.cancel();
+    _photosSubscription = null;
+    _favoritesSubscription?.cancel();
+    _favoritesSubscription = null;
+    _photos = [];
+    _albums = [];
+    _cloudFavoriteIds = {};
+    notifyListeners();
+    
+    // Perform async cleaning and seeding
+    _clearLocalData();
+    _seedWelcomePhoto();
   }
 
   Future<void> _clearLocalData() async {
@@ -116,9 +138,10 @@ class GalleryProvider extends ChangeNotifier {
       _albums = decoded.map((e) => Album.fromJson(e as Map<String, dynamic>)).toList();
     }
 
-    // If signed in, sync favorites from cloud
     if (AuthService.isSignedIn) {
       _startFavoritesSync();
+    } else {
+      _isLoading = false;
     }
     
     notifyListeners();

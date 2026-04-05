@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../services/auth_service.dart';
 import '../screens/gallery/gallery_screen.dart';
 import '../screens/favorites/favorites_screen.dart';
 import '../screens/albums/albums_screen.dart';
@@ -26,12 +29,160 @@ class _AppShellState extends State<AppShell> {
   ];
 
   late final PageController _pageController;
+  StreamSubscription? _authSubscription;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
     _requestPermissions();
+    _listenToAuth();
+    
+    // Initial login prompt check
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!AuthService.isSignedIn) {
+        _showInitialLoginPrompt();
+      }
+    });
+  }
+
+  void _listenToAuth() {
+    _authSubscription?.cancel();
+    _authSubscription = AuthService.authStateChanges.listen((user) {
+      if (user == null && mounted && _currentIndex != 0) {
+        // Reset to Gallery tab on logout
+        setState(() => _currentIndex = 0);
+        _pageController.jumpToPage(0);
+      }
+    });
+  }
+
+  void _showInitialLoginPrompt() {
+    _showPremiumLoginDialog(
+      context,
+      title: 'Welcome to Curator',
+      message: 'Log in to sync your professional gallery across all your devices.',
+      buttonLabel: 'Get Started',
+    );
+  }
+
+  void _showCurateLoginPrompt() {
+    _showPremiumLoginDialog(
+      context,
+      title: 'Cloud Sync Required',
+      message: 'Sign in to upload and secure your moments in the cloud.',
+      buttonLabel: 'Sign in to Upload',
+    );
+  }
+
+  void _showPremiumLoginDialog(
+    BuildContext context, {
+    required String title,
+    required String message,
+    required String buttonLabel,
+  }) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final cs = Theme.of(context).colorScheme;
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHigh.withValues(alpha: 0.95),
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 40,
+                    offset: const Offset(0, 20),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: cs.primaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.cloud_upload_outlined,
+                      size: 36,
+                      color: cs.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SettingsScreen(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: cs.primary,
+                        foregroundColor: cs.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        buttonLabel,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: TextButton.styleFrom(
+                      foregroundColor: cs.onSurfaceVariant,
+                    ),
+                    child: const Text('Maybe later'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _requestPermissions() async {
@@ -45,6 +196,7 @@ class _AppShellState extends State<AppShell> {
   @override
   void dispose() {
     _pageController.dispose();
+    _authSubscription?.cancel();
     super.dispose();
   }
 
@@ -89,12 +241,14 @@ class _AppShellState extends State<AppShell> {
       bottomNavigationBar: FrostedNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() => _currentIndex = index);
-          _pageController.animateToPage(
-            index,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeOutCubic,
-          );
+          if (index != _currentIndex) {
+            HapticFeedback.selectionClick();
+            _pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOutCubic,
+            );
+          }
         },
       ),
       floatingActionButton: _buildFab(context),
@@ -105,7 +259,13 @@ class _AppShellState extends State<AppShell> {
     if (_currentIndex == 0) {
       return _FrostedFab(
         icon: Icons.add_a_photo_rounded,
-        onPressed: () => Navigator.pushNamed(context, '/curate'),
+        onPressed: () {
+          if (AuthService.isSignedIn) {
+            Navigator.pushNamed(context, '/curate');
+          } else {
+            _showCurateLoginPrompt();
+          }
+        },
       );
     }
     if (_currentIndex == 2) {

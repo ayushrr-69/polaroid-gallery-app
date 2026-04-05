@@ -27,10 +27,8 @@ class CloudinaryService {
     }
   }
 
-  /// Compress an image file.
-  ///
-  /// [highQuality] = true:  quality 85, max 2048px → ~1-2 MB
-  /// [highQuality] = false: quality 60, max 1080px → ~300-800 KB
+  /// [highQuality] = true:  quality 80, max 1920px → ~1-2 MB
+  /// [highQuality] = false: quality 70, max 1080px → ~300-800 KB
   static Future<File?> compressImage(
     String sourcePath, {
     required bool highQuality,
@@ -40,8 +38,8 @@ class CloudinaryService {
       final targetPath =
           '${dir.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-      final int quality = highQuality ? 85 : 60;
-      final int minDimension = highQuality ? 2048 : 1080;
+      final int quality = highQuality ? 80 : 70;
+      final int minDimension = highQuality ? 1920 : 1080;
 
       final XFile? result = await FlutterImageCompress.compressAndGetFile(
         sourcePath,
@@ -49,10 +47,25 @@ class CloudinaryService {
         quality: quality,
         minWidth: minDimension,
         minHeight: minDimension,
+        keepExif: true,
+        autoCorrectionAngle: true, // Fix rotation issues automatically
+        format: CompressFormat.jpeg,
       );
 
       if (result != null) {
-        return File(result.path);
+        final compressedFile = File(result.path);
+        
+        // Smart Check: Only use compressed if it's actually smaller
+        final originalSize = await File(sourcePath).length();
+        final compressedSize = await compressedFile.length();
+        
+        if (compressedSize < originalSize) {
+          debugPrint('Compression success: Saved ${(originalSize - compressedSize) ~/ 1024} KB');
+          return compressedFile;
+        } else {
+          debugPrint('Original is already well-optimized, skipping compression');
+          return File(sourcePath);
+        }
       }
       return null;
     } catch (e) {

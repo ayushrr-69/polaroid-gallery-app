@@ -36,9 +36,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _handleSignOut() async {
+    // Clear state instantly before signing out to remove latency
+    context.read<GalleryProvider>().clearDataForLogout();
     await AuthService.signOut();
     if (mounted) {
-      setState(() {});
+      // Pop SettingsScreen to return to AppShell
+      Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Signed out'),

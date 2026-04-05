@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/photo.dart';
 
@@ -64,6 +65,7 @@ class _PolaroidCardState extends State<PolaroidCard>
 
   void _handleDoubleTap() {
     final wasFavorite = widget.photo.isFavorite;
+    HapticFeedback.mediumImpact(); // Added haptics
     widget.onDoubleTap?.call();
     setState(() {
       _showHeart = true;
@@ -153,15 +155,37 @@ class _PolaroidCardState extends State<PolaroidCard>
                             ? CachedNetworkImage(
                                 imageUrl: widget.photo.imageUrl,
                                 fit: BoxFit.cover,
-                                placeholder: (_, _) => Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: cs.primary,
+                                fadeInDuration: const Duration(milliseconds: 500),
+                                placeholder: (_, _) => Container(
+                                  color: cs.surfaceContainerHighest.withValues(alpha: 0.1),
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: cs.primary.withValues(alpha: 0.4),
+                                    ),
                                   ),
                                 ),
-                                errorWidget: (_, _, _) => Icon(
-                                  Icons.broken_image_rounded,
-                                  color: Colors.grey[600],
+                                errorWidget: (context, url, error) => Container(
+                                  color: cs.errorContainer.withValues(alpha: 0.2),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.image_not_supported_outlined,
+                                        color: cs.error.withValues(alpha: 0.5),
+                                        size: 32,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Failed to load',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: cs.error.withValues(alpha: 0.6),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               )
                             : widget.photo.imageUrl.startsWith('assets/')
@@ -235,7 +259,10 @@ class _PolaroidCardState extends State<PolaroidCard>
                   if (widget.onFavorite != null) ...[
                     const SizedBox(width: 8),
                     IconButton(
-                      onPressed: widget.onFavorite,
+                      onPressed: () {
+                        HapticFeedback.lightImpact(); // Added haptics
+                        widget.onFavorite?.call();
+                      },
                       icon: Icon(
                         widget.photo.isFavorite
                             ? Icons.favorite_rounded
